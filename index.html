@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Agenda">
+<meta name="theme-color" content="#eee8e1">
+<link rel="manifest" href="manifest.json">
+<title>Agenda</title>
+<style>
+  :root {
+    --bg: #ffffff; --card: #ffffff; --ink: #4a4540; --muted: #9a928a; --line: #e7e2dc;
+    --accent: #7a4f57; --today: #7a4f57;
+    --c-cal: #8fa0b3; --c-ent: #c9946b; --c-exa: #c9ad5c; --c-mio: #b57b84;
+    --c-vac: #e2bcb6; --c-pri: #8e9d8f; --c-rut: #a9a18f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--ink); font-size: 15px; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; position: sticky; top: 0; background: var(--bg); z-index: 5; gap: 8px; }
+  h1 { font-size: 18px; margin: 0; font-weight: 600; }
+  .btn { border: 0; background: var(--card); color: var(--ink); padding: 8px 12px; border-radius: 10px; font-size: 14px; cursor: pointer; box-shadow: 0 1px 0 var(--line); }
+  .btn.primary { background: var(--accent); color: #fff; }
+  .tabs { display: flex; gap: 6px; padding: 0 14px 10px; }
+  .tabs .btn.on { background: var(--accent); color: #fff; }
+  .nav { display: flex; align-items: center; gap: 8px; padding: 0 14px 10px; }
+  .nav span { flex: 1; text-align: center; font-weight: 600; text-transform: capitalize; }
+  .status { font-size: 12px; color: var(--muted); padding: 0 14px 6px; min-height: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--line); margin: 0 10px; border-radius: 12px; overflow: hidden; }
+  .dow { background: var(--card); text-align: center; font-size: 11px; color: var(--muted); padding: 6px 0; }
+  .cell { background: var(--card); min-height: 92px; padding: 4px 3px; overflow: hidden; }
+  .cell.other { opacity: .45; }
+  .cell.today .num { background: var(--today); color: #fff; }
+  .num { display: inline-block; min-width: 22px; text-align: center; border-radius: 11px; font-size: 12px; padding: 1px 2px; margin-bottom: 2px; }
+  .chip { font-size: 11px; border-radius: 5px; padding: 2px 4px; margin-bottom: 2px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  .chip.rut { background: transparent; color: var(--c-rut); border: 1px dashed var(--c-rut); }
+  .chip.task { background: transparent; color: var(--ink); border: 1px solid var(--accent); }
+  .chip.task.done { text-decoration: line-through; color: var(--muted); border-color: var(--line); }
+  .list { margin: 0 14px; }
+  .day { background: var(--card); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; }
+  .day h2 { font-size: 14px; margin: 0 0 6px; color: var(--accent); }
+  .day h2.today { color: var(--accent); }
+  .row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .row:last-child { border-bottom: 0; }
+  .bar { width: 4px; align-self: stretch; border-radius: 3px; }
+  .row .t { flex: 1; cursor: pointer; }
+  .row .time { font-size: 12px; color: var(--muted); }
+  .row.late { color: var(--muted); }
+  .row.late .t { color: var(--muted); }
+  .sect { font-size: 12px; color: var(--muted); margin: 8px 14px 4px; }
+  input, select, textarea { width: 100%; padding: 9px 10px; border-radius: 9px; border: 1px solid var(--line); background: #fff; font-size: 15px; color: var(--ink); margin-bottom: 8px; }
+  label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 2px; }
+  .modal { position: fixed; inset: 0; background: rgba(60,50,45,.35); display: none; align-items: flex-end; justify-content: center; z-index: 20; }
+  .modal.on { display: flex; }
+  .sheet { background: var(--bg); width: 100%; max-width: 560px; border-radius: 18px 18px 0 0; padding: 16px; max-height: 92vh; overflow: auto; }
+  .sheet h3 { margin: 0 0 10px; font-size: 16px; }
+  .sheet .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; }
+  .sheet .actions .btn.danger { color: #9c3d3d; }
+  .row-inline { display: flex; gap: 8px; }
+  .row-inline > * { flex: 1; }
+  .switch { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 14px; }
+  .hint { font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+  .weekgrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--line); margin: 0 10px; border-radius: 12px; overflow: hidden; }
+  .wcol { background: var(--card); min-height: 260px; padding: 4px 3px; cursor: pointer; }
+  @media (max-width: 1100px) { .weekgrid { grid-template-columns: repeat(3, 1fr); } }
+  .wcol.today .wh { color: #fff; background: var(--today); border-radius: 8px; }
+  .wh { text-align: center; font-size: 12px; color: var(--ink); padding: 4px 0; margin-bottom: 4px; }
+  .wh b { display: block; font-size: 15px; }
+  .wcol .chip { font-size: 10px; }
+  .swatches { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 10px; }
+  .swatch { width: 28px; height: 28px; border-radius: 14px; border: 2px solid transparent; cursor: pointer; }
+  .swatch.on { border-color: var(--ink); }
+  .fab { position: fixed; right: 16px; bottom: 18px; width: 54px; height: 54px; border-radius: 27px; background: var(--accent); color: #fff; font-size: 28px; border: 0; box-shadow: 0 4px 14px rgba(0,0,0,.2); cursor: pointer; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Agenda</h1>
+  <button class="btn" id="btnSettings">Ajustes</button>
+</header>
+
+<div class="tabs">
+  <button class="btn on" data-view="month">Mes</button>
+  <button class="btn" data-view="week">Semana</button>
+  <button class="btn" data-view="day">Hoy</button>
+</div>
+
+<div class="nav">
+  <button class="btn" id="prev">&lsaquo;</button>
+  <span id="title"></span>
+  <button class="btn" id="next">&rsaquo;</button>
+  <button class="btn" id="goToday">Hoy</button>
+</div>
+
+<div class="status" id="status"></div>
+
+<div id="view"></div>
+
+<button class="fab" id="fab" title="Nuevo">+</button>
+
+<!-- Ajustes -->
+<div class="modal" id="mSettings"><div class="sheet">
+  <h3>Ajustes</h3>
+  <p class="hint">La dirección y la clave solo se guardan en este dispositivo.</p>
+  <label>Dirección de la aplicación web (Apps Script)</label>
+  <input id="setUrl" placeholder="https://script.google.com/macros/s/.../exec">
+  <label>Clave</label>
+  <input id="setKey" type="password">
+  <div class="actions">
+    <button class="btn" data-close>Cancelar</button>
+    <button class="btn primary" id="saveSettings">Guardar</button>
+  </div>
+</div></div>
+
+<!-- Evento -->
+<div class="modal" id="mEvent"><div class="sheet">
+  <h3 id="evTitle">Nuevo evento</h3>
+  <label>Título</label>
+  <input id="evName">
+  <label>Calendario</label>
+  <select id="evCal"></select>
+  <div class="switch"><input type="checkbox" id="evAllDay" style="width:auto;margin:0"> Todo el día</div>
+  <div class="row-inline">
+    <div><label>Fecha</label><input type="date" id="evDate"></div>
+    <div id="evTimes" class="row-inline" style="flex:2">
+      <div><label>Inicio</label><input type="time" id="evStart"></div>
+      <div><label>Fin</label><input type="time" id="evEnd"></div>
+    </div>
+  </div>
+  <label>Notas</label>
+  <textarea id="evDesc" rows="2"></textarea>
+  <div class="actions">
+    <button class="btn danger" id="evDelete">Borrar</button>
+    <button class="btn" data-close>Cancelar</button>
+    <button class="btn primary" id="evSave">Guardar</button>
+  </div>
+</div></div>
+
+<!-- Tarea -->
+<div class="modal" id="mTask"><div class="sheet">
+  <h3 id="tkTitle">Nueva tarea</h3>
+  <label>Tarea</label>
+  <input id="tkName">
+  <label>Fecha límite</label>
+  <input type="date" id="tkDue">
+  <label>Asignatura (cada una tiene su color)</label>
+  <input id="tkSubject" list="subjList" placeholder="p. ej. Ergonomía">
+  <datalist id="subjList"></datalist>
+  <div class="actions">
+    <button class="btn danger" id="tkDelete">Borrar</button>
+    <button class="btn" data-close>Cancelar</button>
+    <button class="btn primary" id="tkSave">Guardar</button>
+  </div>
+</div></div>
+
+<!-- Elegir: evento o tarea -->
+<div class="modal" id="mNew"><div class="sheet">
+  <h3>¿Qué quieres crear?</h3>
+  <div class="actions" style="justify-content:stretch">
+    <button class="btn" style="flex:1" id="newEvent">Evento</button>
+    <button class="btn primary" style="flex:1" id="newTask">Tarea</button>
+  </div>
+  <div class="actions"><button class="btn" data-close>Cancelar</button></div>
+</div></div>
+
+<script>
+/* ===== Configuración ===== */
+const CALS = [
+  { id: '84d458b5113582c1795ce542f44f26f67b75287ed3974ccea5ebc4bf5005be77@group.calendar.google.com', name: 'Calendario', color: '#2F7CF6' },
+  { id: 'd07bd1522a54a39a47164b5283c29f8e3ff9fdeac2048a9f45c618f436348db5@group.calendar.google.com', name: 'Entregas / academia', color: '#FF9B2F' },
+  { id: '9984efeb85c175b40778ca75f6a152bb0358e47f5e56aa73976b42d8e177f470@group.calendar.google.com', name: 'Exámenes', color: '#E8B800' },
+  { id: '665f5e466d4642f521a99ba16531e06f7be514399b882b27b18f1fda1a88352c@group.calendar.google.com', name: 'Mios', color: '#E8336E' },
+  { id: '04cb79bfea78df9346116fb8d28ca9a492158d41c83edd428902d3990e660fcb@group.calendar.google.com', name: 'Vacaciones', color: '#F59BB8' },
+  { id: 'adelarosavega@gmail.com', name: 'Personal', color: '#38B6E8' },
+  { id: 'es.spain#holiday@group.v.calendar.google.com', name: 'Festivos', color: '#B5ADA4', holiday: true }
+];
+const calColor = id => (CALS.find(c => c.id === id) || {}).color || '#38B6E8';
+/* Colores para las asignaturas (cada una tiene el suyo) */
+const PALETTE = ['#7B61FF','#00A884','#D97706','#DB2777','#0EA5E9','#65A30D','#9333EA','#EA580C','#0891B2','#BE123C'];
+let subjects = {};   // nombre de asignatura -> color (se carga abajo)
+function subjectColor(name) {
+  if (!name) return null;
+  if (!subjects[name]) {
+    const used = Object.values(subjects);
+    subjects[name] = PALETTE.find(c => !used.includes(c)) || PALETTE[used.length % PALETTE.length];
+    store.set('subjects', subjects);
+  }
+  return subjects[name];
+}
+function taskColor(t) {
+  return subjectColor(t.subject) || '#9a928a';
+}
+/* Chip con el estilo de Minical: fondo suave, barra de color y texto oscuro */
+function chipStyle(c) { return 'background:' + c + '2b;border-left:3px solid ' + c + ';color:#3a3530'; }
+
+/* Rutina fija: solo se muestra en la vista de mes */
+const ROUTINE = [
+  { dow: 1, title: 'Gimnasio 19:30' },
+  { dow: 3, title: 'Correr' }
+];
+
+/* ===== Estado ===== */
+const store = {
+  get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } },
+  set(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
+};
+let cfg = store.get('cfg', { url: '', key: '' });
+subjects = store.get('subjects', {});
+let tasks = store.get('tasks', []);          // {id,title,due:'YYYY-MM-DD',done}
+let events = store.get('events', []);        // caché: {id,calId,title,start,end,allDay,description}
+let queue = store.get('queue', []);          // escrituras pendientes sin conexión
+let view = 'month';
+let cursor = startOfDay(new Date());         // fecha de referencia
+let editing = null;                          // evento o tarea que se edita
+
+/* ===== Utilidades de fecha ===== */
+function startOfDay(d) { const x = new Date(d); x.setHours(0,0,0,0); return x; }
+function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+function ymd(d) { const z = n => String(n).padStart(2,'0'); return d.getFullYear() + '-' + z(d.getMonth()+1) + '-' + z(d.getDate()); }
+function parseYmd(s) { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
+function hm(d) { return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
+function localIso(d) { return ymd(d) + 'T' + hm(d) + ':00'; }
+function monday(d) { const x = startOfDay(d); const k = (x.getDay() + 6) % 7; return addDays(x, -k); }
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DIAS = ['lun','mar','mié','jue','vie','sáb','dom'];
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+/* ===== Conexión con Apps Script ===== */
+function setStatus(t) { $('status').textContent = t; }
+
+async function callScript(payload) {
+  const url = cfg.url; const key = cfg.key;
+  if (!url || !key) throw new Error('Falta configurar la dirección y la clave en Ajustes');
+  const body = Object.assign({ key }, payload);
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+  const j = await r.json();
+  if (j && j.error) throw new Error(j.error);
+  return j;
+}
+
+/* Lee eventos de todos los calendarios para un rango */
+async function loadRange(from, to) {
+  setStatus('Actualizando…');
+  try {
+    const results = await Promise.all(CALS.map(c =>
+      callScript({ action: 'list', calendarId: c.id, start: localIso(from), end: localIso(to) })
+        .then(list => list.map(e => ({ ...e, calId: c.id })))
+    ));
+    // Reemplaza solo el rango cargado y conserva el resto de la caché
+    const keep = events.filter(e => new Date(e.end) < from || new Date(e.start) > to);
+    events = keep.concat(...results);
+    store.set('events', events);
+    setStatus('');
+  } catch (err) {
+    setStatus('Sin conexión: se muestran los datos guardados (' + err.message + ')');
+  }
+  render();
+}
+
+/* Envía una escritura o la pone en cola si no hay conexión */
+async function write(action) {
+  queue.push(action); store.set('queue', queue);
+  await flushQueue();
+}
+async function flushQueue() {
+  while (queue.length) {
+    try {
+      await callScript(queue[0]);
+      queue.shift(); store.set('queue', queue);
+    } catch (e) {
+      if (!navigator.onLine || /Failed|fetch|NetworkError/i.test(e.message)) break;
+      queue.shift(); store.set('queue', queue);   // error de la aplicación: descartar
+      setStatus('Error al guardar: ' + e.message);
+      break;
+    }
+  }
+}
+window.addEventListener('online', async () => { await flushQueue(); refresh(); });
+
+/* ===== Rango visible ===== */
+function visibleRange() {
+  if (view === 'month') {
+    const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+    const from = monday(first);
+    return { from, to: addDays(from, 42) };
+  }
+  if (view === 'week') { const from = monday(cursor); return { from, to: addDays(from, 7) }; }
+  return { from: startOfDay(cursor), to: addDays(startOfDay(cursor), 1) };
+}
+function refresh() {
+  const r = visibleRange();
+  loadRange(r.from, r.to);
+}
+
+/* ===== Pintado ===== */
+function render() {
+  const today = startOfDay(new Date());
+  const titles = {
+    month: MESES[cursor.getMonth()] + ' ' + cursor.getFullYear(),
+    week: (() => { const m = monday(cursor); const s = addDays(m, 6); return m.getDate() + ' – ' + s.getDate() + ' ' + MESES[s.getMonth()]; })(),
+    day: cursor.getDate() + ' de ' + MESES[cursor.getMonth()]
+  };
+  $('title').textContent = titles[view];
+  document.querySelectorAll('.tabs .btn').forEach(b => b.classList.toggle('on', b.dataset.view === view));
+  if (view === 'month') renderMonth(today);
+  else if (view === 'week') renderWeek(today);
+  else renderDay(today);
+}
+
+function eventsOn(day) {
+  const s = day, e = addDays(day, 1);
+  // Los festivos van siempre al final de cada día
+  return events.filter(ev => new Date(ev.start) < e && new Date(ev.end) > s)
+    .sort((a,b) => (isHoliday(a) - isHoliday(b)) || (new Date(a.start) - new Date(b.start)));
+}
+function tasksOn(day) { return tasks.filter(t => t.due === ymd(day)); }
+function lateTasks(day) { return tasks.filter(t => !t.done && t.due < ymd(day)); }
+
+function chipEvent(ev, withTime = true) {
+  const t = (withTime && !ev.allDay) ? hm(new Date(ev.start)) + ' ' + ev.title : ev.title;
+  const style = isHoliday(ev) ? 'background:#f1ede8;color:#9a928a;border-left:3px solid #c9c1b8' : chipStyle(calColor(ev.calId));
+  return '<div class="chip" style="' + style + '" data-ev="' + ev.id + '">' + esc(t) + '</div>';
+}
+function isHoliday(ev) { const c = CALS.find(x => x.id === ev.calId); return !!(c && c.holiday); }
+function chipTask(t) {
+  return '<div class="chip" style="' + chipStyle(taskColor(t)) + (t.done ? ';opacity:.5;text-decoration:line-through' : '') + '" data-tk="' + t.id + '">' + esc(t.title) + '</div>';
+}
+function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function renderMonth(today) {
+  const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+  const from = monday(first);
+  let html = '<div class="grid">';
+  DIAS.forEach(d => html += '<div class="dow">' + d + '</div>');
+  for (let i = 0; i < 42; i++) {
+    const day = addDays(from, i);
+    const other = day.getMonth() !== cursor.getMonth();
+    const isToday = ymd(day) === ymd(today);
+    html += '<div class="cell' + (other ? ' other' : '') + (isToday ? ' today' : '') + '" data-day="' + ymd(day) + '">';
+    html += '<div><span class="num">' + day.getDate() + '</span></div>';
+    eventsOn(day).slice(0, 4).forEach(ev => html += chipEvent(ev, false));
+    ROUTINE.filter(r => r.dow === day.getDay()).forEach(r => html += '<div class="chip rut">' + esc(r.title) + '</div>');
+    html += '</div>';
+  }
+  html += '</div>';
+  $('view').innerHTML = html;
+  bindDayClicks();
+}
+
+function renderWeek(today) {
+  const from = monday(cursor);
+  // Lunes a viernes en una columna cada uno; sábado y domingo juntos en la misma columna
+  const cols = [];
+  for (let i = 0; i < 5; i++) cols.push([addDays(from, i)]);
+  cols.push([addDays(from, 5), addDays(from, 6)]);
+  let html = '<div class="weekgrid">';
+  cols.forEach(days => {
+    const hasToday = days.some(d => ymd(d) === ymd(today));
+    html += '<div class="wcol' + (hasToday ? ' today' : '') + '" data-goday="' + ymd(days[0]) + '">';
+    if (days.length === 2) {
+      html += '<div class="wh">' + DIAS[5] + ' <b style="display:inline">' + days[0].getDate() + '</b> / ' + DIAS[6] + ' <b style="display:inline">' + days[1].getDate() + '</b></div>';
+    }
+    days.forEach(day => {
+      if (days.length === 1) html += '<div class="wh">' + DIAS[(day.getDay()+6)%7] + '<b>' + day.getDate() + '</b></div>';
+      eventsOn(day).forEach(ev => html += chipEvent(ev));
+      tasksOn(day).forEach(t => html += chipTask(t));
+      if (ymd(day) === ymd(today)) lateTasks(day).forEach(t => html += chipTask(t));
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+  $('view').innerHTML = html;
+  bindDayClicks();
+}
+
+function renderDay(today) {
+  $('view').innerHTML = '<div class="list">' + dayBlock(startOfDay(cursor), today, true) + '</div>';
+  bindDayClicks();
+}
+
+function dayBlock(day, today, big) {
+  const isToday = ymd(day) === ymd(today);
+  let h = '<div class="day" data-day="' + ymd(day) + '"><h2 class="' + (isToday ? 'today' : '') + '">' +
+    DIAS[(day.getDay()+6)%7] + ' ' + day.getDate() + ' ' + MESES[day.getMonth()] + (isToday ? ' · hoy' : '') + '</h2>';
+  const evs = eventsOn(day);
+  evs.forEach(ev => {
+    h += '<div class="row"><span class="bar" style="background:' + calColor(ev.calId) + '"></span>' +
+      '<span class="t" data-ev="' + ev.id + '">' + esc(ev.title) + '</span>' +
+      '<span class="time">' + (ev.allDay ? 'día' : hm(new Date(ev.start))) + '</span></div>';
+  });
+  tasksOn(day).forEach(t => {
+    h += '<div class="row"><span class="bar" style="background:' + taskColor(t) + '"></span><input type="checkbox" data-done="' + t.id + '" ' + (t.done ? 'checked' : '') + ' style="width:auto;margin:0">' +
+      '<span class="t ' + (t.done ? 'done' : '') + '" data-tk="' + t.id + '">' + esc(t.title) + '</span></div>';
+  });
+  if (isToday) {
+    lateTasks(day).forEach(t => {
+      h += '<div class="row late"><span class="bar" style="background:' + taskColor(t) + '"></span><input type="checkbox" data-done="' + t.id + '" style="width:auto;margin:0">' +
+        '<span class="t" data-tk="' + t.id + '">' + esc(t.title) + ' <span class="time">(vence ' + t.due.split('-').reverse().join('/') + ')</span></span></div>';
+    });
+  }
+  if (!evs.length && !tasksOn(day).length && !(isToday && lateTasks(day).length)) h += '<div class="time">Nada previsto</div>';
+  return h + '</div>';
+}
+
+/* Clic en día vacío en mes/semana: abre el selector de crear */
+let pendingDate = null;
+function bindDayClicks() {
+  document.querySelectorAll('[data-ev]').forEach(el => el.onclick = e => { e.stopPropagation(); openEvent(events.find(x => x.id === el.dataset.ev)); });
+  document.querySelectorAll('[data-tk]').forEach(el => el.onclick = e => { e.stopPropagation(); openTask(tasks.find(x => x.id === el.dataset.tk)); });
+  document.querySelectorAll('[data-done]').forEach(el => el.onchange = () => {
+    const t = tasks.find(x => x.id === el.dataset.done); if (!t) return;
+    t.done = el.checked; store.set('tasks', tasks); render();
+  });
+  document.querySelectorAll('[data-goday]').forEach(el => el.onclick = () => {
+    cursor = parseYmd(el.dataset.goday); view = 'day'; refresh(); render();
+  });
+  document.querySelectorAll('.cell, .day').forEach(el => el.onclick = () => {
+    const iso = el.dataset.day;
+    pendingDate = iso ? parseYmd(iso) : null;
+    if (!pendingDate) return;
+    $('mNew').classList.add('on');
+  });
+}
+
+/* ===== Eventos ===== */
+function fillCalSelect(selected) {
+  $('evCal').innerHTML = CALS.map(c => '<option value="' + c.id + '" ' + (c.id === selected ? 'selected' : '') + '>' + c.name + '</option>').join('');
+}
+function openEvent(ev, dateHint) {
+  editing = ev || null;
+  $('evTitle').textContent = ev ? 'Editar evento' : 'Nuevo evento';
+  const base = dateHint || startOfDay(new Date());
+  $('evName').value = ev ? ev.title : '';
+  fillCalSelect(ev ? ev.calId : CALS[0].id);
+  $('evAllDay').checked = ev ? !!ev.allDay : false;
+  $('evDate').value = ev ? ymd(new Date(ev.start)) : ymd(base);
+  $('evStart').value = ev && !ev.allDay ? hm(new Date(ev.start)) : '09:00';
+  $('evEnd').value = ev && !ev.allDay ? hm(new Date(ev.end)) : '10:00';
+  $('evDesc').value = ev ? (ev.description || '') : '';
+  $('evDelete').style.display = ev ? '' : 'none';
+  toggleAllDay();
+  $('mEvent').classList.add('on');
+}
+function toggleAllDay() { $('evTimes').style.display = $('evAllDay').checked ? 'none' : 'flex'; }
+$('evAllDay').onchange = toggleAllDay;
+
+$('evSave').onclick = async () => {
+  const allDay = $('evAllDay').checked;
+  const date = $('evDate').value;
+  if (!$('evName').value || !date) return alert('Pon un título y una fecha');
+  let start, end;
+  if (allDay) {
+    start = date; const e = addDays(parseYmd(date), 1); end = ymd(e);
+  } else {
+    start = date + 'T' + $('evStart').value + ':00';
+    end = date + 'T' + $('evEnd').value + ':00';
+  }
+  const calId = $('evCal').value;
+  if (editing) {
+    const body = { action: 'update', calendarId: editing.calId, id: editing.id, title: $('evName').value, description: $('evDesc').value };
+    if (!allDay) { body.start = start; body.end = end; }
+    await write(body);
+    events = events.map(e => e.id === editing.id ? Object.assign({}, e, { title: $('evName').value, description: $('evDesc').value }) : e);
+  } else {
+    const body = { action: 'create', calendarId: calId, title: $('evName').value, description: $('evDesc').value, allDay, start: allDay ? date : start, end: allDay ? end : end };
+    await write(body);
+  }
+  store.set('events', events);
+  $('mEvent').classList.remove('on');
+  refresh();
+};
+$('evDelete').onclick = async () => {
+  if (!editing || !confirm('¿Borrar este evento?')) return;
+  await write({ action: 'delete', calendarId: editing.calId, id: editing.id });
+  events = events.filter(e => e.id !== editing.id); store.set('events', events);
+  $('mEvent').classList.remove('on'); render();
+};
+
+/* ===== Tareas (solo fecha límite) ===== */
+function openTask(t, dateHint) {
+  editing = t || null;
+  $('tkTitle').textContent = t ? 'Editar tarea' : 'Nueva tarea';
+  $('tkName').value = t ? t.title : '';
+  $('tkDue').value = t ? t.due : ymd(dateHint || startOfDay(new Date()));
+  $('tkSubject').value = t ? (t.subject || '') : '';
+  $('subjList').innerHTML = Object.keys(subjects).map(s => '<option value="' + esc(s) + '">').join('');
+  $('tkDelete').style.display = t ? '' : 'none';
+  $('mTask').classList.add('on');
+}
+$('tkSave').onclick = () => {
+  if (!$('tkName').value || !$('tkDue').value) return alert('Pon un nombre y una fecha límite');
+  const subject = $('tkSubject').value.trim();
+  if (subject) subjectColor(subject);   // reserva su color
+  if (editing) { editing.title = $('tkName').value; editing.due = $('tkDue').value; editing.subject = subject; }
+  else tasks.push({ id: uid(), title: $('tkName').value, due: $('tkDue').value, done: false, subject });
+  store.set('tasks', tasks);
+  $('mTask').classList.remove('on'); render();
+};
+$('tkDelete').onclick = () => {
+  if (!editing || !confirm('¿Borrar esta tarea?')) return;
+  tasks = tasks.filter(t => t.id !== editing.id); store.set('tasks', tasks);
+  $('mTask').classList.remove('on'); render();
+};
+
+/* ===== Navegación y botones ===== */
+document.querySelectorAll('.tabs .btn').forEach(b => b.onclick = () => { view = b.dataset.view; refresh(); render(); });
+$('prev').onclick = () => { if (view === 'month') cursor = new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1); else cursor = addDays(cursor, view === 'week' ? -7 : -1); refresh(); render(); };
+$('next').onclick = () => { if (view === 'month') cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1); else cursor = addDays(cursor, view === 'week' ? 7 : 1); refresh(); render(); };
+$('goToday').onclick = () => { cursor = startOfDay(new Date()); refresh(); render(); };
+
+$('fab').onclick = () => { pendingDate = cursor; $('mNew').classList.add('on'); };
+$('newEvent').onclick = () => { $('mNew').classList.remove('on'); openEvent(null, pendingDate || cursor); };
+$('newTask').onclick = () => { $('mNew').classList.remove('on'); openTask(null, pendingDate || cursor); };
+
+$('btnSettings').onclick = () => {
+  $('setUrl').value = cfg.url; $('setKey').value = cfg.key;
+  $('mSettings').classList.add('on');
+};
+$('saveSettings').onclick = () => {
+  cfg = { url: $('setUrl').value.trim(), key: $('setKey').value.trim() };
+  store.set('cfg', cfg);
+  $('mSettings').classList.remove('on');
+  refresh();
+};
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => b.closest('.modal').classList.remove('on'));
+document.querySelectorAll('.modal').forEach(m => m.onclick = e => { if (e.target === m) m.classList.remove('on'); });
+
+/* ===== Arranque ===== */
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+render();
+if (!cfg.url || !cfg.key) $('mSettings').classList.add('on');
+refresh();
+</script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "Agenda",
+  "short_name": "Agenda",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#eee8e1",
+  "theme_color": "#eee8e1"
+}
