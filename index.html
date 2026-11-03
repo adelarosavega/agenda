@@ -182,7 +182,7 @@
 const CALS = [
   { id: '84d458b5113582c1795ce542f44f26f67b75287ed3974ccea5ebc4bf5005be77@group.calendar.google.com', name: 'Calendario', color: '#2F7CF6' },
   { id: 'd07bd1522a54a39a47164b5283c29f8e3ff9fdeac2048a9f45c618f436348db5@group.calendar.google.com', name: 'Entregas', color: '#FF9B2F' },
-  { id: '8c8cd524e35005688a90ba67c2a1f2e0b05a4b18480c07f279dd70e1b473c7f9@group.calendar.google.com', name: 'Academia', color: '#8BA596' },
+  { id: '8c8cd524e35005688a90ba67c2a1f2e0b05a4b18480c07f279dd70e1b473c7f9@group.calendar.google.com', name: 'Academia', color: '#FF9B2F' },
   { id: '9984efeb85c175b40778ca75f6a152bb0358e47f5e56aa73976b42d8e177f470@group.calendar.google.com', name: 'Exámenes', color: '#E8B800' },
   { id: '665f5e466d4642f521a99ba16531e06f7be514399b882b27b18f1fda1a88352c@group.calendar.google.com', name: 'Mios', color: '#E8336E' },
   { id: '04cb79bfea78df9346116fb8d28ca9a492158d41c83edd428902d3990e660fcb@group.calendar.google.com', name: 'Vacaciones', color: '#F59BB8' },
@@ -325,8 +325,16 @@ function lateTasks(day) { return tasks.filter(t => !t.done && t.due < ymd(day));
 
 function chipEvent(ev, withTime = false) {
   const t = (withTime && !ev.allDay) ? hm(new Date(ev.start)) + ' ' + ev.title : ev.title;
-  const style = isHoliday(ev) ? 'background:#f1ede8;color:#9a928a;border-left:3px solid #c9c1b8' : chipStyle(calColor(ev.calId));
-  return '<div class="chip" style="' + style + '" data-ev="' + ev.id + '">' + esc(t) + '</div>';
+  const c = calColor(ev.calId);
+  let style, dot = '';
+  if (isHoliday(ev)) style = 'background:#f1ede8;color:#9a928a;border-left:3px solid #c9c1b8';
+  else if (!ev.allDay) {
+    // Eventos con hora: subrayado del color y un punto delante, sin burbuja
+    style = 'background:transparent;color:#3a3530;border-bottom:2px solid ' + c;
+    dot = '<span style="display:inline-block;width:6px;height:6px;border-radius:3px;background:' + c + ';margin-right:3px"></span>';
+  }
+  else style = chipStyle(c);
+  return '<div class="chip" style="' + style + '" data-ev="' + ev.id + '">' + dot + esc(t) + '</div>';
 }
 function isHoliday(ev) { const c = CALS.find(x => x.id === ev.calId); return !!(c && c.holiday); }
 function chipTask(t) {
