@@ -187,6 +187,7 @@ const CALS = [
   { id: '665f5e466d4642f521a99ba16531e06f7be514399b882b27b18f1fda1a88352c@group.calendar.google.com', name: 'Mios', color: '#E8336E' },
   { id: '04cb79bfea78df9346116fb8d28ca9a492158d41c83edd428902d3990e660fcb@group.calendar.google.com', name: 'Vacaciones', color: '#F59BB8' },
   { id: 'adelarosavega@gmail.com', name: 'Personal', color: '#38B6E8' },
+  { id: '2d06233fb099483a35f95728ab9f3a911f7d14c6be169f9b18f0efa4e3c35713@group.calendar.google.com', name: 'Deporte', color: '#8A8F94' },
   { id: 'es.spain#holiday@group.v.calendar.google.com', name: 'Festivos', color: '#B5ADA4', holiday: true }
 ];
 const calColor = id => (CALS.find(c => c.id === id) || {}).color || '#38B6E8';
@@ -208,11 +209,8 @@ function taskColor(t) {
 /* Chip con el estilo de Minical: fondo suave, barra de color y texto oscuro */
 function chipStyle(c) { return 'background:' + c + '2b;border-left:3px solid ' + c + ';color:#3a3530'; }
 
-/* Rutina fija: solo se muestra en la vista de mes */
-const ROUTINE = [
-  { dow: 1, title: 'Gimnasio 19:30' },
-  { dow: 3, title: 'Correr' }
-];
+/* Rutina fija: ahora gimnasio y correr vienen del calendario Deporte */
+const ROUTINE = [];
 
 /* ===== Estado ===== */
 const store = {
