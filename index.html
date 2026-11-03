@@ -16,10 +16,10 @@
     --c-vac: #e2bcb6; --c-pri: #8e9d8f; --c-rut: #a9a18f;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--ink); font-size: 15px; }
+  body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--ink); font-size: 13px; }
   header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; position: sticky; top: 0; background: var(--bg); z-index: 5; gap: 8px; }
   h1 { font-size: 18px; margin: 0; font-weight: 600; }
-  .btn { border: 0; background: var(--card); color: var(--ink); padding: 8px 12px; border-radius: 10px; font-size: 14px; cursor: pointer; box-shadow: 0 1px 0 var(--line); }
+  .btn { border: 0; background: var(--card); color: var(--ink); padding: 8px 12px; border-radius: 10px; font-size: 12px; cursor: pointer; box-shadow: 0 1px 0 var(--line); }
   .btn.primary { background: var(--accent); color: #fff; }
   .tabs { display: flex; gap: 6px; padding: 0 14px 10px; }
   .tabs .btn.on { background: var(--accent); color: #fff; }
@@ -27,29 +27,29 @@
   .nav span { flex: 1; text-align: center; font-weight: 600; text-transform: capitalize; }
   .status { font-size: 12px; color: var(--muted); padding: 0 14px 6px; min-height: 16px; }
   .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--line); margin: 0 10px; border-radius: 12px; overflow: hidden; }
-  .dow { background: var(--card); text-align: center; font-size: 11px; color: var(--muted); padding: 6px 0; }
+  .dow { background: var(--card); text-align: center; font-size: 9px; color: var(--muted); padding: 6px 0; }
   .cell { background: var(--card); min-height: 92px; padding: 4px 3px; overflow: hidden; }
   .cell.other { opacity: .45; }
-  .cell.today .num { background: var(--today); color: #fff; }
-  .num { display: inline-block; min-width: 22px; text-align: center; border-radius: 11px; font-size: 12px; padding: 1px 2px; margin-bottom: 2px; }
-  .chip { font-size: 11px; border-radius: 5px; padding: 2px 4px; margin-bottom: 2px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  .cell.today .num { background: #f3d9df; color: var(--ink); }
+  .num { display: inline-block; min-width: 22px; text-align: center; border-radius: 11px; font-size: 10px; padding: 1px 2px; margin-bottom: 2px; }
+  .chip { font-size: 9px; border-radius: 5px; padding: 2px 4px; margin-bottom: 2px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
   .chip.rut { background: transparent; color: var(--c-rut); border: 1px dashed var(--c-rut); }
   .chip.task { background: transparent; color: var(--ink); border: 1px solid var(--accent); }
   .chip.task.done { text-decoration: line-through; color: var(--muted); border-color: var(--line); }
   .list { margin: 0 14px; }
   .day { background: var(--card); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; }
-  .day h2 { font-size: 14px; margin: 0 0 6px; color: var(--accent); }
+  .day h2 { font-size: 12px; margin: 0 0 6px; color: var(--accent); }
   .day h2.today { color: var(--accent); }
   .row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); }
   .row:last-child { border-bottom: 0; }
   .bar { width: 4px; align-self: stretch; border-radius: 3px; }
   .row .t { flex: 1; cursor: pointer; }
-  .row .time { font-size: 12px; color: var(--muted); }
+  .row .time { font-size: 10px; color: var(--muted); }
   .row.late { color: var(--muted); }
   .row.late .t { color: var(--muted); }
   .sect { font-size: 12px; color: var(--muted); margin: 8px 14px 4px; }
   input, select, textarea { width: 100%; padding: 9px 10px; border-radius: 9px; border: 1px solid var(--line); background: #fff; font-size: 15px; color: var(--ink); margin-bottom: 8px; }
-  label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 2px; }
+  label { font-size: 10px; color: var(--muted); display: block; margin-bottom: 2px; }
   .modal { position: fixed; inset: 0; background: rgba(60,50,45,.35); display: none; align-items: flex-end; justify-content: center; z-index: 20; }
   .modal.on { display: flex; }
   .sheet { background: var(--bg); width: 100%; max-width: 560px; border-radius: 18px 18px 0 0; padding: 16px; max-height: 92vh; overflow: auto; }
@@ -63,13 +63,25 @@
   .weekgrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--line); margin: 0 10px; border-radius: 12px; overflow: hidden; }
   .wcol { background: var(--card); min-height: 260px; padding: 4px 3px; cursor: pointer; }
   @media (max-width: 1100px) { .weekgrid { grid-template-columns: repeat(3, 1fr); } }
-  .wcol.today .wh { color: #fff; background: var(--today); border-radius: 8px; }
-  .wh { text-align: center; font-size: 12px; color: var(--ink); padding: 4px 0; margin-bottom: 4px; }
-  .wh b { display: block; font-size: 15px; }
-  .wcol .chip { font-size: 10px; }
+  .wcol.today .wh { color: var(--ink); background: #f3d9df; border-radius: 8px; }
+  .wh { text-align: center; font-size: 10px; color: var(--ink); padding: 4px 0; margin-bottom: 4px; }
+  .wh b { display: inline; font-size: 12px; margin-left: 2px; }
+  .wcol .chip { font-size: 8px; }
+  .overdue { margin: 0 10px 10px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; }
+  .overdue h4 { margin: 0 0 6px; font-size: 10px; color: var(--muted); font-weight: 600; }
+  .orow { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px solid var(--line); font-size: 10px; }
+  .orow:last-child { border-bottom: 0; }
+  .orow .bar { width: 4px; height: 16px; align-self: auto; }
+  .orow .ot { flex: 1; }
+  .orow select { width: auto; margin: 0; padding: 3px 4px; font-size: 10px; border-radius: 6px; }
+  .orow button { border: 0; background: none; color: #9c3d3d; font-size: 11px; cursor: pointer; }
   .swatches { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 10px; }
   .swatch { width: 28px; height: 28px; border-radius: 14px; border: 2px solid transparent; cursor: pointer; }
   .swatch.on { border-color: var(--ink); }
+  .calpick { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .calpick button { border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 16px; padding: 5px 10px; font-size: 11px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .calpick button.on { border-color: var(--ink); font-weight: 600; }
+  .calpick .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
   .fab { position: fixed; right: 16px; bottom: 18px; width: 54px; height: 54px; border-radius: 27px; background: var(--accent); color: #fff; font-size: 28px; border: 0; box-shadow: 0 4px 14px rgba(0,0,0,.2); cursor: pointer; }
 </style>
 </head>
@@ -119,7 +131,8 @@
   <label>Título</label>
   <input id="evName">
   <label>Calendario</label>
-  <select id="evCal"></select>
+  <input type="hidden" id="evCal">
+  <div class="calpick" id="evCalPick"></div>
   <div class="switch"><input type="checkbox" id="evAllDay" style="width:auto;margin:0"> Todo el día</div>
   <div class="row-inline">
     <div><label>Fecha</label><input type="date" id="evDate"></div>
@@ -168,7 +181,8 @@
 /* ===== Configuración ===== */
 const CALS = [
   { id: '84d458b5113582c1795ce542f44f26f67b75287ed3974ccea5ebc4bf5005be77@group.calendar.google.com', name: 'Calendario', color: '#2F7CF6' },
-  { id: 'd07bd1522a54a39a47164b5283c29f8e3ff9fdeac2048a9f45c618f436348db5@group.calendar.google.com', name: 'Entregas / academia', color: '#FF9B2F' },
+  { id: 'd07bd1522a54a39a47164b5283c29f8e3ff9fdeac2048a9f45c618f436348db5@group.calendar.google.com', name: 'Entregas', color: '#FF9B2F' },
+  { id: '8c8cd524e35005688a90ba67c2a1f2e0b05a4b18480c07f279dd70e1b473c7f9@group.calendar.google.com', name: 'Academia', color: '#8BA596' },
   { id: '9984efeb85c175b40778ca75f6a152bb0358e47f5e56aa73976b42d8e177f470@group.calendar.google.com', name: 'Exámenes', color: '#E8B800' },
   { id: '665f5e466d4642f521a99ba16531e06f7be514399b882b27b18f1fda1a88352c@group.calendar.google.com', name: 'Mios', color: '#E8336E' },
   { id: '04cb79bfea78df9346116fb8d28ca9a492158d41c83edd428902d3990e660fcb@group.calendar.google.com', name: 'Vacaciones', color: '#F59BB8' },
@@ -280,18 +294,11 @@ async function flushQueue() {
 window.addEventListener('online', async () => { await flushQueue(); refresh(); });
 
 /* ===== Rango visible ===== */
-function visibleRange() {
-  if (view === 'month') {
-    const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
-    const from = monday(first);
-    return { from, to: addDays(from, 42) };
-  }
-  if (view === 'week') { const from = monday(cursor); return { from, to: addDays(from, 7) }; }
-  return { from: startOfDay(cursor), to: addDays(startOfDay(cursor), 1) };
-}
+/* Carga todo el periodo de Google Calendar que usamos (no solo el mes visible) */
+const RANGE_FROM = new Date(2026, 0, 1);
+const RANGE_TO = new Date(2027, 11, 31);
 function refresh() {
-  const r = visibleRange();
-  loadRange(r.from, r.to);
+  loadRange(RANGE_FROM, RANGE_TO);
 }
 
 /* ===== Pintado ===== */
@@ -318,7 +325,7 @@ function eventsOn(day) {
 function tasksOn(day) { return tasks.filter(t => t.due === ymd(day)); }
 function lateTasks(day) { return tasks.filter(t => !t.done && t.due < ymd(day)); }
 
-function chipEvent(ev, withTime = true) {
+function chipEvent(ev, withTime = false) {
   const t = (withTime && !ev.allDay) ? hm(new Date(ev.start)) + ' ' + ev.title : ev.title;
   const style = isHoliday(ev) ? 'background:#f1ede8;color:#9a928a;border-left:3px solid #c9c1b8' : chipStyle(calColor(ev.calId));
   return '<div class="chip" style="' + style + '" data-ev="' + ev.id + '">' + esc(t) + '</div>';
@@ -333,7 +340,7 @@ function renderMonth(today) {
   const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
   const from = monday(first);
   let html = '<div class="grid">';
-  DIAS.forEach(d => html += '<div class="dow">' + d + '</div>');
+  ['L','M','X','J','V','S','D'].forEach(d => html += '<div class="dow">' + d + '</div>');
   for (let i = 0; i < 42; i++) {
     const day = addDays(from, i);
     const other = day.getMonth() !== cursor.getMonth();
@@ -351,22 +358,34 @@ function renderMonth(today) {
 
 function renderWeek(today) {
   const from = monday(cursor);
+  // Tareas no hechas de semanas anteriores: arriba, para moverlas a un día o quitarlas
+  const old = tasks.filter(t => !t.done && t.due < ymd(from)).sort((a, b) => a.due < b.due ? -1 : 1);
+  let html = '';
+  if (old.length) {
+    html += '<div class="overdue"><h4>Pendientes de semanas anteriores</h4>';
+    old.forEach(t => {
+      const opts = [0,1,2,3,4,5,6].map(i => { const d = addDays(from, i); return '<option value="' + ymd(d) + '">' + DIAS[i] + ' ' + d.getDate() + '</option>'; }).join('');
+      html += '<div class="orow"><span class="bar" style="background:' + taskColor(t) + '"></span><span class="ot" data-tk="' + t.id + '">' + esc(t.title) + '</span>' +
+        '<select data-assign="' + t.id + '"><option value="">Mover a…</option>' + opts + '</select>' +
+        '<button data-del="' + t.id + '">Quitar</button></div>';
+    });
+    html += '</div>';
+  }
   // Lunes a viernes en una columna cada uno; sábado y domingo juntos en la misma columna
   const cols = [];
   for (let i = 0; i < 5; i++) cols.push([addDays(from, i)]);
   cols.push([addDays(from, 5), addDays(from, 6)]);
-  let html = '<div class="weekgrid">';
+  html += '<div class="weekgrid">';
   cols.forEach(days => {
     const hasToday = days.some(d => ymd(d) === ymd(today));
     html += '<div class="wcol' + (hasToday ? ' today' : '') + '" data-goday="' + ymd(days[0]) + '">';
     if (days.length === 2) {
-      html += '<div class="wh">' + DIAS[5] + ' <b style="display:inline">' + days[0].getDate() + '</b> / ' + DIAS[6] + ' <b style="display:inline">' + days[1].getDate() + '</b></div>';
+      html += '<div class="wh">' + DIAS[5] + ' <b>' + days[0].getDate() + '</b> / ' + DIAS[6] + ' <b>' + days[1].getDate() + '</b></div>';
     }
     days.forEach(day => {
-      if (days.length === 1) html += '<div class="wh">' + DIAS[(day.getDay()+6)%7] + '<b>' + day.getDate() + '</b></div>';
+      if (days.length === 1) html += '<div class="wh">' + DIAS[(day.getDay()+6)%7] + ' <b>' + day.getDate() + '</b></div>';
       eventsOn(day).forEach(ev => html += chipEvent(ev));
       tasksOn(day).forEach(t => html += chipTask(t));
-      if (ymd(day) === ymd(today)) lateTasks(day).forEach(t => html += chipTask(t));
     });
     html += '</div>';
   });
@@ -388,7 +407,7 @@ function dayBlock(day, today, big) {
   evs.forEach(ev => {
     h += '<div class="row"><span class="bar" style="background:' + calColor(ev.calId) + '"></span>' +
       '<span class="t" data-ev="' + ev.id + '">' + esc(ev.title) + '</span>' +
-      '<span class="time">' + (ev.allDay ? 'día' : hm(new Date(ev.start))) + '</span></div>';
+      '</div>';
   });
   tasksOn(day).forEach(t => {
     h += '<div class="row"><span class="bar" style="background:' + taskColor(t) + '"></span><input type="checkbox" data-done="' + t.id + '" ' + (t.done ? 'checked' : '') + ' style="width:auto;margin:0">' +
@@ -414,7 +433,15 @@ function bindDayClicks() {
     t.done = el.checked; store.set('tasks', tasks); render();
   });
   document.querySelectorAll('[data-goday]').forEach(el => el.onclick = () => {
-    cursor = parseYmd(el.dataset.goday); view = 'day'; refresh(); render();
+    cursor = parseYmd(el.dataset.goday); view = 'day'; render();
+  });
+  document.querySelectorAll('[data-assign]').forEach(sel => sel.onchange = () => {
+    const t = tasks.find(x => x.id === sel.dataset.assign); if (!t || !sel.value) return;
+    t.due = sel.value; store.set('tasks', tasks); render();
+  });
+  document.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+    if (!confirm('¿Quitar esta tarea?')) return;
+    tasks = tasks.filter(t => t.id !== b.dataset.del); store.set('tasks', tasks); render();
   });
   document.querySelectorAll('.cell, .day').forEach(el => el.onclick = () => {
     const iso = el.dataset.day;
@@ -426,7 +453,15 @@ function bindDayClicks() {
 
 /* ===== Eventos ===== */
 function fillCalSelect(selected) {
-  $('evCal').innerHTML = CALS.map(c => '<option value="' + c.id + '" ' + (c.id === selected ? 'selected' : '') + '>' + c.name + '</option>').join('');
+  // Lista de calendarios con un punto del color de cada uno
+  const pick = id => {
+    $('evCal').value = id;
+    document.querySelectorAll('#evCalPick button').forEach(b => b.classList.toggle('on', b.dataset.id === id));
+  };
+  $('evCalPick').innerHTML = CALS.filter(c => !c.holiday).map(c =>
+    '<button type="button" data-id="' + c.id + '"><span class="dot" style="background:' + c.color + '"></span>' + c.name + '</button>').join('');
+  document.querySelectorAll('#evCalPick button').forEach(b => b.onclick = () => pick(b.dataset.id));
+  pick(selected || CALS[0].id);
 }
 function openEvent(ev, dateHint) {
   editing = ev || null;
@@ -505,10 +540,10 @@ $('tkDelete').onclick = () => {
 };
 
 /* ===== Navegación y botones ===== */
-document.querySelectorAll('.tabs .btn').forEach(b => b.onclick = () => { view = b.dataset.view; refresh(); render(); });
-$('prev').onclick = () => { if (view === 'month') cursor = new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1); else cursor = addDays(cursor, view === 'week' ? -7 : -1); refresh(); render(); };
-$('next').onclick = () => { if (view === 'month') cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1); else cursor = addDays(cursor, view === 'week' ? 7 : 1); refresh(); render(); };
-$('goToday').onclick = () => { cursor = startOfDay(new Date()); refresh(); render(); };
+document.querySelectorAll('.tabs .btn').forEach(b => b.onclick = () => { view = b.dataset.view; render(); });
+$('prev').onclick = () => { if (view === 'month') cursor = new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1); else cursor = addDays(cursor, view === 'week' ? -7 : -1); render(); };
+$('next').onclick = () => { if (view === 'month') cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1); else cursor = addDays(cursor, view === 'week' ? 7 : 1); render(); };
+$('goToday').onclick = () => { cursor = startOfDay(new Date()); render(); };
 
 $('fab').onclick = () => { pendingDate = cursor; $('mNew').classList.add('on'); };
 $('newEvent').onclick = () => { $('mNew').classList.remove('on'); openEvent(null, pendingDate || cursor); };
