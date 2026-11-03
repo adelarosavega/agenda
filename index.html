@@ -63,6 +63,22 @@
   .weekgrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--line); margin: 0 10px; border-radius: 12px; overflow: hidden; }
   .wcol { background: var(--card); min-height: 260px; padding: 4px 3px; cursor: pointer; }
   @media (max-width: 1100px) { .weekgrid { grid-template-columns: repeat(3, 1fr); } }
+  /* Ordenador: letra más grande */
+  @media (min-width: 900px) {
+    body { font-size: 15px; }
+    .btn { font-size: 14px; }
+    .dow { font-size: 11px; }
+    .num { font-size: 13px; }
+    .chip { font-size: 12px; }
+    .wcol .chip { font-size: 11px; }
+    .wh { font-size: 12px; }
+    .wh b { font-size: 14px; }
+    .day h2 { font-size: 15px; }
+    .row .time { font-size: 12px; }
+    label { font-size: 12px; }
+    .orow { font-size: 12px; }
+    .status { font-size: 13px; }
+  }
   .wcol.today .wh { color: var(--ink); background: #f3d9df; border-radius: 8px; }
   .wh { text-align: center; font-size: 10px; color: var(--ink); padding: 4px 0; margin-bottom: 4px; }
   .wh b { display: inline; font-size: 12px; margin-left: 2px; }
@@ -327,7 +343,7 @@ function lateTasks(day) { return tasks.filter(t => !t.done && t.due < ymd(day));
 function isMultiDay(ev) {
   return !!ev.allDay && ymd(addDays(new Date(ev.start), 1)) < ymd(new Date(ev.end));
 }
-function chipEvent(ev, withTime = false, day = null) {
+function chipEvent(ev, withTime = false, day = null, forceLabel = false) {
   const t = (withTime && !ev.allDay) ? hm(new Date(ev.start)) + ' ' + ev.title : ev.title;
   const c = calColor(ev.calId);
   let style, dot = '', label = t;
@@ -335,7 +351,7 @@ function chipEvent(ev, withTime = false, day = null) {
     // Varios días seguidos: un bloque continuo del mismo color, sin separación entre días
     const startY = ymd(new Date(ev.start)), endY = ymd(addDays(new Date(ev.end), -1)), dY = ymd(day);
     const isStart = dY === startY, isEnd = dY === endY;
-    label = (isStart || day.getDay() === 1) ? ev.title : '';
+    label = (isStart || day.getDay() === 1 || forceLabel) ? ev.title : '';
     style = 'background:' + c + '59;color:#3a3530;border-radius:' + (isStart ? '5px' : '0') + ' ' + (isEnd ? '5px' : '0') + ' ' + (isEnd ? '5px' : '0') + ' ' + (isStart ? '5px' : '0') +
       ';margin-left:' + (isStart ? '0' : '-4px') + ';margin-right:' + (isEnd ? '0' : '-4px') + ';padding-left:' + (isStart ? '4px' : '4px') + ';min-height:14px';
     return '<div class="chip" style="' + style + '" data-ev="' + ev.id + '">' + esc(label) + '</div>';
@@ -401,9 +417,19 @@ function renderWeek(today) {
     if (days.length === 2) {
       html += '<div class="wh">' + DIAS[5] + ' <b>' + days[0].getDate() + '</b> / ' + DIAS[6] + ' <b>' + days[1].getDate() + '</b></div>';
     }
+    const seen = new Set();
     days.forEach(day => {
       if (days.length === 1) html += '<div class="wh">' + DIAS[(day.getDay()+6)%7] + ' <b>' + day.getDate() + '</b></div>';
-      eventsOn(day).forEach(ev => html += chipEvent(ev, false, day));
+      eventsOn(day).forEach(ev => {
+        // Sábado y domingo comparten columna: cada evento solo se pone una vez
+        if (days.length === 2) {
+          if (seen.has(ev.id)) return;
+          seen.add(ev.id);
+          html += chipEvent(ev, false, day, true);
+          return;
+        }
+        html += chipEvent(ev, false, day);
+      });
       tasksOn(day).forEach(t => html += chipTask(t));
     });
     html += '</div>';
